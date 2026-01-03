@@ -28,6 +28,13 @@ print("TFLite model loaded!")
 MAX_SEQUENCE_LENGTH = 200
 
 def preprocess_text(text):
+    # Optimize: Truncate very long text to avoid processing unnecessary tokens.
+    # The model uses the last 200 tokens (pad_sequences default truncating='pre').
+    # We keep a safe buffer (e.g., 1000 words) to ensure we don't lose relevant tokens.
+    words = text.split()
+    if len(words) > MAX_SEQUENCE_LENGTH * 5:
+        text = " ".join(words[-MAX_SEQUENCE_LENGTH * 5:])
+
     sequence = tokenizer.texts_to_sequences([text])
     return pad_sequences(sequence, maxlen=MAX_SEQUENCE_LENGTH, dtype="float32")
 
